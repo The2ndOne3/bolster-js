@@ -1,4 +1,17 @@
-bolster-js
+Bolster.js
 ==========
+Bolster is a JavaScript plugin that extends CSS to create effects that can't be generated with static CSS. Bolster works on a superset of CSS, providing additional keywords to create dynamic effects that can only be generated at runtime using JavaScript.
 
-A JavaScript plugin that extends CSS to create effects that can't be generated with static CSS.
+Usage
+=====
+Bolster scans all linked CSS files for its keywords. All you need to do is link an external CSS file and Bolster will take care of the rest.
+
+Upcoming
+========
+* **r**
+* **Reduced Dependencies** -- A leaner, compressed distribution.
+
+Dependencies
+============
+* MooTools Core 1.4.5
+* MooTools More 1.2.5
