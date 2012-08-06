@@ -24,6 +24,8 @@
 .deployables
 .make.state
 .nse_depinfo
+.project
+.settings
 CVS.adm
 RCS
 RCSLOG
