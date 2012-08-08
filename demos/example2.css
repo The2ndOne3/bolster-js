@@ -1,3 +1,8 @@
 p{
 	color:white;
 }
+
+b{
+	attribute:key;
+	border:solid 1px blue;
+}
