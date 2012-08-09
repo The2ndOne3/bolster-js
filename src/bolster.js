@@ -17,10 +17,7 @@
 	}
 	// Initialize plugin.
 	window.Bolster={
-		version:'',
-		build:{
-			keywords:[]
-		}
+		version:''
 	}
 	// Get the CSS files.
 	input={
@@ -42,6 +39,7 @@
 	});
 	// Parse for Bolster keywords.
 	function parse(css){
+		// Parse for CSS declarations.
 		css=css.split(/[{}]/g);
 		css.pop(); // Remove last item; will be the 'empty' text after the last '}'.
 		rules=[];
@@ -63,6 +61,30 @@
 				});
 			});
 		});
-		console.log(rules);
+		// Parse for Bolster properties.
+		rules.each(function(rule){
+			rule.declarations.each(function(declaration){
+				get_effects().each(function(bolster_property){
+					if(declaration.property=='-bolster-'+bolster_property){
+						set_effect(rule.selector,declaration);
+					}					
+				});
+			});
+		});
 	}
+	// Get effect names.
+	function get_effects(){
+		return Object.keys(bolsterfx);
+	}
+	// Effect setter.
+	function set_effect(selector,declaration){
+		declaration.property=declaration.property.substring(9); // Remove the '-bolster-' prefix.
+		bolsterfx[declaration.property](selector,declaration.value);
+	}
+	// Effect configuration.
+	bolsterfx={
+		'example-property':function(selector,value){
+			console.log('Selector: '+selector+'; Declaration:"test-property:'+value+';"');
+		},
+	};
 }(window.MooTools);
