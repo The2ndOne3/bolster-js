@@ -3,28 +3,32 @@
  */
 !function(mT){
 	// Prerequisites.
-	if(mT===undefined){
-		alert('Bolster relies upon MooTools.');
+	if(mT===undefined||mT.version.toFloat()<1.4){
+		console.log('Bolster requires at least MooTools 1.4.5');
 		return;
 	}
-	if(mT.More===undefined){
-		alert('Bolster requires MooTools More.');
-		return;
-	}
-	if(mT.version.toFloat()<1.4){
-		alert('Bolster requires at least MooTools 1.4.5.')
+	if(mT.More===undefined||mT.More.version.toFloat()<1.2){
+		console.log('Bolster requires at least MooTools More 1.2.5');
 		return;
 	}
 	// Initialize plugin.
 	window.Bolster={
-		version:''
+		version:'', // Version.
+		extend:function(property_name,func){ // Add custom properties.
+			bolsterfx[property_name]=func;
+		}
 	}
-	// Get the CSS files.
+	// Initialize CSS input object.
 	input={
-		count:$(document.head).getChildren('link[type="text/css"]').length, // The number of files
-		loaded:0, // The counter of loaded files.
-		text:'' // CSS file contents.
-	};
+			count:$(document.head).getChildren('link[type="text/css"]').length, // The number of files
+			loaded:0, // The counter of loaded files.
+			text:''
+		};	
+	// Get inline CSS.
+	$$('style[type="text/css"]').each(function(style){
+		input.text+=style.get('html');
+	});
+	// Get the CSS files.
 	$(document.head).getChildren('link[type="text/css"]').each(function(link){
 		new Request({
 			url:link.get('href'),
@@ -85,6 +89,18 @@
 	bolsterfx={
 		'example-property':function(selector,value){
 			console.log('Selector: '+selector+'; Declaration:"test-property:'+value+';"');
+		},
+		// Vertically centre dynamic content
+		'div-align':function(selector,value){
+			$$(selector);
+		},
+		// Natural height given in absolute pixels
+		'abs-height':function(selector,value){
+			$$(selector);
+		},
+		// Natural width given in absolute pixels
+		'abs-width':function(selector,value){
+			$$(selector);
 		},
 	};
 }(window.MooTools);
