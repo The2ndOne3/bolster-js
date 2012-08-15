@@ -132,6 +132,9 @@
 								cleaned.push(temp);
 							}
 						});
+						if(cleaned.length<=1){
+							cleaned=cleaned[0];
+						}
 						set_effect(rule.selector,bolster_property,cleaned);
 					}					
 				});
@@ -161,16 +164,60 @@
 			});
 		},
 		// Natural height given in absolute pixels
-		'abs-height':function(selector,args){
-			$$(selector).each(function(element){
-				;
-			});
+		'abs-height':function(selector,arg){
+			if(arg=='auto'){
+				add_new_continuous(function(){
+					$$('selector').each(function(element){
+						element.setStyle('height',element.getSize().y);
+					})
+				});
+			}
+			else{ // If they're an idiot and decide to use this for a regular height declaration.
+				sheets_height:
+				for(i=0,lenA=document.styleSheets.length;i<len;i++){ // Traditional for loops must be used to use labels.
+					sheet=document.styleSheets.length[i];
+					for(j=0,lenB=sheet.cssRules.length;j<lenB;j++){
+						rule=document.styleSheets[i].cssRules[j];
+						if(rule.selectorText==selector){
+							rule.style.setProperty('height',arg);
+							break sheets_height;
+						}
+					}
+				}
+			}
 		},
 		// Natural width given in absolute pixels
 		'abs-width':function(selector,args){
-			$$(selector).each(function(element){
-				;
-			});
+			if(arg=='auto'){
+				add_new_continuous(function(){
+					$$('selector').each(function(element){
+						element.setStyle('width',element.getSize().x);
+					})
+				});
+			}
+			else{
+				sheets_width:
+				for(i=0,lenA=document.styleSheets.length;i<len;i++){
+					sheet=document.styleSheets.length[i];
+					for(j=0,lenB=sheet.cssRules.length;j<lenB;j++){
+						rule=document.styleSheets[i].cssRules[j];
+						if(rule.selectorText==selector){
+							rule.style.setProperty('width',arg);
+							break sheets_width;
+						}
+					}
+				}
+			}
 		},
 	};
+	// Continuous functions.
+	continuous_check_functions=[];
+	function add_new_continuous(func){
+		continuous_check_functions.push(func);
+	}
+	(function(){
+		continuous_check_functions.each(function(func){
+			func();
+		});
+	}).periodical(1/32);
 }(window.MooTools);

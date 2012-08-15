@@ -16,6 +16,9 @@ Bolster Properties
 ==================
 Bolster comes with a number of default dynamic styles, all of which have the '-bolster-' prefix.
 
+* **-bolster-abs-height** -- behaviors like height, but will set a width in absolute pixels when set to 'auto'. Useful for dynamic content.
+* **-bolster-abs-width** -- behaviors like width, but will set a width in absolute pixels when set to 'auto'. Useful for dynamic content.
+
 Custom Properties
 =================
 Bolster comes with an extend function that allows you to define your own custom dynamic styles.
