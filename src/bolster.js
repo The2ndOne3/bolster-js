@@ -17,13 +17,13 @@
 		extend:function(property_name,func){ // Add custom properties.
 			bolsterfx[property_name]=func;
 		}
-	}
+	};
 	// Initialize CSS input object.
 	input={
-			count:$(document.head).getChildren('link[type="text/css"]').length, // The number of files
-			loaded:0, // The counter of loaded files.
-			text:''
-		};	
+		count:$(document.head).getChildren('link[type="text/css"]').length, // The number of files
+		loaded:0, // The counter of loaded files.
+		text:''
+	};	
 	// Get inline CSS.
 	$$('style[type="text/css"]').each(function(style){
 		input.text+=style.get('html');
@@ -35,7 +35,7 @@
 			onSuccess:function(response){
 				input.text+=response;
 				input.loaded++;
-				if(input.loaded==input.count){
+				if(input.loaded===input.count){
 					parse(input.text);
 				}
 			}
@@ -54,23 +54,85 @@
 				declarations:[]
 			});
 		}
+		// Parse CSS into rules.
 		rules.each(function(rule){
 			declarations=rule.css.split(/;/g);
 			declarations.pop(); // Same as above.
 			declarations.each(function(declaration){
 				declaration=declaration.split(/:/g);
-				rule['declarations'].push({
+				rule.declarations.push({
 					property:declaration[0].trim().replace(/[\t\n]/g,''),
 					value:declaration[1].trim().replace(/[\t\n]/g,'')
 				});
 			});
 		});
-		// Parse for Bolster properties.
+		// Parse rules for Bolster properties.
 		rules.each(function(rule){
 			rule.declarations.each(function(declaration){
 				get_effects().each(function(bolster_property){
-					if(declaration.property=='-bolster-'+bolster_property){
-						set_effect(rule.selector,declaration);
+					if(declaration.property==='-bolster-'+bolster_property){
+						// Format whitespace.
+						value=declaration.value.replace(/ +(?= )/g,''); // Remove multiple spaces.
+						value=declaration.value.replace(/, /g,','); // Remove space after comma.
+						// Tokenize.
+						args=[];
+						last=0;
+						quoted=false;
+						//escape=false;
+						temp=[];
+						for(i=0,len=value.length;i<len;i++){
+							switch(value[i]){
+								case "'":
+								case '"':
+									if(quoted===false){
+										quoted=value[i];
+										last++; // So it won't match the leading quotation mark.
+									}else if(quoted===value[i]){
+										temp.push(value.substring(last,i));
+										last=i+1;
+										quoted=false;
+									}
+									break;
+								case ' ':
+									if(quoted===false){
+										temp.push(value.substring(last,i));
+										last=i+1;
+									}
+									break;
+								case ',':
+									if(quoted===false){
+										temp.push(value.substring(last,i));
+										last=i+1;
+										args.push(temp);
+										temp=[];
+									}
+									break;
+							}
+						}
+						// The last token won't have a trailing comma or space.
+						temp.push(value.substring(last));
+						args.push(temp);
+						// Clean arguments.
+						cleaned=[];
+						args.each(function(tokens){
+							// Remove invalid tokens.
+							tokens=tokens.clean();
+							// Remove empty tokens.
+							temp=[]
+							tokens.each(function(token){
+								if(token!==''){
+									temp.push(token);
+								}
+							});
+							// If only one token, push that instead of the array.
+							if(temp.length<=1){
+								cleaned.push(temp[0]);
+							}
+							else{
+								cleaned.push(temp);
+							}
+						});
+						set_effect(rule.selector,bolster_property,cleaned);
 					}					
 				});
 			});
@@ -81,26 +143,34 @@
 		return Object.keys(bolsterfx);
 	}
 	// Effect setter.
-	function set_effect(selector,declaration){
-		declaration.property=declaration.property.substring(9); // Remove the '-bolster-' prefix.
-		bolsterfx[declaration.property](selector,declaration.value);
+	function set_effect(selector,property,args){
+		bolsterfx[property](selector,args);
 	}
 	// Effect configuration.
 	bolsterfx={
-		'example-property':function(selector,value){
-			console.log('Selector: '+selector+'; Declaration:"test-property:'+value+';"');
+		'test-property':function(selector,args){
+			console.log('Selector: '+selector+';');// Declaration:"test-property:'+args+';"');
+			console.log(args);
 		},
 		// Vertically centre dynamic content
-		'div-align':function(selector,value){
-			$$(selector);
+		'vert-mount':function(selector,args){
+			$$(selector).each(function(element){
+				if(value===''){
+					;
+				}
+			});
 		},
 		// Natural height given in absolute pixels
-		'abs-height':function(selector,value){
-			$$(selector);
+		'abs-height':function(selector,args){
+			$$(selector).each(function(element){
+				;
+			});
 		},
 		// Natural width given in absolute pixels
-		'abs-width':function(selector,value){
-			$$(selector);
+		'abs-width':function(selector,args){
+			$$(selector).each(function(element){
+				;
+			});
 		},
 	};
 }(window.MooTools);

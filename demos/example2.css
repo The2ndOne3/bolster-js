@@ -1,10 +1,10 @@
 p{
 	color:white;
-	-bolster-example-property:foo;
+	-bolster-test-property:foo;
 }
 
 b{
 	attribute:key;
-	-bolster-example-property:bar;
+	-bolster-test-property:bar,'quoted val', a b c,'quoted with ,,   ', 22, 'quoted argument with spaces!, and a comma';
 	border:solid 1px blue;
 }
