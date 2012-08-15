@@ -34,7 +34,7 @@
 	};
 	// Get inline CSS.
 	$$('style[type="text/css"]').each(function(style){
-		this.temp.input.text+=style.get('html');
+		this.input.text+=style.get('html');
 	});
 	// Get the CSS files.
 	$(document.head).getChildren('link[type="text/css"]').each(function(link){
@@ -172,7 +172,7 @@
 		// Natural height given in absolute pixels
 		'abs-height':function(selector,arg){
 			if(arg==='auto'){
-				this.add_new_continuous(function(){
+				this.add_continuous(function(){
 					$$('selector').each(function(element){
 						element.setStyle('width',element.getSize().x);
 					});
@@ -195,7 +195,7 @@
 		// Natural width given in absolute pixels
 		'abs-width':function(selector,arg){
 			if(arg==='auto'){
-				this.add_new_continuous(function(){
+				this.add_continuous(function(){
 					$$('selector').each(function(element){
 						element.setStyle('width',element.getSize().x);
 					});
@@ -216,14 +216,18 @@
 			}
 		}
 	};
+	
 	// Continuous functions.
-	this.continuous_check_functions=[];
-	this.add_new_continuous=function(func){
-		this.continuous_check_functions.push(func);
+	this.continuous=[];
+	this.add_continuous=function(func){
+		this.continuous.push(func);
 	}
 	(function(){
-		this.continuous_check_functions.each(function(func){
-			(func)();
+		this.continuous.each(function(func){
+			func();
 		});
 	}).bind(this).periodical(1/32);
+	
+	// Rescan for new elements.
+	// Dammit, DOMSubtreeModified is deprecated?
 }).bind({})(window.MooTools);
