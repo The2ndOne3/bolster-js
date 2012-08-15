@@ -1,6 +1,6 @@
 Documentation
 =============
-Bolster.js 0.1.0
+**Version 0.1.0**
 
 Getting Started
 ===============
@@ -16,7 +16,7 @@ Bolster Properties
 ==================
 Bolster comes with a number of default dynamic styles, all of which have the '-bolster-' prefix.
 
-* **-bolster-abs-height** -- behaviors like `height`, but will set a width in absolute pixels when set to `auto`. If set to `auto-continuous`, it will continuously rescan the element in case the content changes. Note that `auto-continuous` may clash with tweening functions. Useful for dynamic content.
+* **-bolster-abs-height** -- behaves like `height`, but will set a width in absolute pixels when set to `auto`. If set to `auto-continuous`, it will continuously rescan the element in case the content changes. Note that `auto-continuous` may clash with tweening functions. Useful for dynamic content.
 * **-bolster-abs-width** -- same as `-bolster-abs-height`, but for width. 
 
 Custom Properties

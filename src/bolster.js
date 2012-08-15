@@ -21,13 +21,15 @@
 		version:'0.1.0', // Version.
 		extend:function(property_name,func){ // Add custom properties.
 			this.bolsterfx[property_name]=func;
-		}
+		}.bind(this),
+		rescan:function(){
+			this.load();
+		}.bind(this)
 	};
 	// Initialize temporary object.
 	this.temp={};
 
-	// Wait until all CSS loads.
-	window.addEvent('domready',function(){
+	this.load=function(){
 		// Initialize CSS input object.
 		this.input={
 			count:$(document.head).getChildren('link[type="text/css"]').length, // The number of files
@@ -38,7 +40,7 @@
 		// Get inline CSS.
 		$$('style').each(function(style){
 			this.input.text+=style.get('html');
-		}.bind(this));		
+		}.bind(this));
 		// Get external CSS files.
 		$(document.head).getChildren('link[type="text/css"]').each(function(link){
 			new Request({
@@ -51,11 +53,15 @@
 					}
 				}.bind(this)
 			}).send();
-		},this);		
-	}.bind(this));
+		},this);
+	}.bind(this);
+	
+	// Wait until all CSS loads.
+	window.addEvent('domready',this.load).bind(this);
 	
 	// Parse for Bolster keywords.
 	this.parse=function(css){
+		console.log(css);
 		// Parse for CSS declarations.
 		css=css.split(/[{}]/g);
 		css.pop(); // Remove last item; will be the 'empty' text after the last '}'.
@@ -180,12 +186,12 @@
 					element.setStyle('height',element.getSize().y);
 				});
 			}
-			else if(arg=='auto-continuous'){
+			else if(arg==='auto-continuous'){
 				this.add_continuous(function(){
 					$$('selector').each(function(element){
 						element.setStyle('height',element.getSize().y);
 					});
-				});				
+				});
 			}
 			else{ // If they're an idiot and decide to use this for a regular height declaration.
 				sheets_width:
@@ -208,12 +214,12 @@
 					element.setStyle('width',element.getSize().x);
 				});
 			}
-			else if(arg=='auto-continuous'){
+			else if(arg==='auto-continuous'){
 				this.add_continuous(function(){
 					$$('selector').each(function(element){
 						element.setStyle('width',element.getSize().x);
 					});
-				});				
+				});
 			}
 			else{
 				sheets_width:
@@ -228,7 +234,7 @@
 					}
 				}
 			}
-		},
+		}
 		// Sets transition type.
 		/*'transition':function(selector,arg){
 			;
