@@ -57,11 +57,10 @@
 	}.bind(this);
 	
 	// Wait until all CSS loads.
-	window.addEvent('domready',this.load).bind(this);
+	window.addEvent('domready',this.load,this);
 	
 	// Parse for Bolster keywords.
 	this.parse=function(css){
-		console.log(css);
 		// Parse for CSS declarations.
 		css=css.split(/[{}]/g);
 		css.pop(); // Remove last item; will be the 'empty' text after the last '}'.
@@ -143,17 +142,8 @@
 									this.temp.nonempty.push(token);
 								}
 							}.bind(this));
-							// If only one token, push that instead of the array.
-							if(this.temp.nonempty.length<=1){
-								this.temp.cleaned.push(this.temp.nonempty[0]);
-							}
-							else{
-								this.temp.cleaned.push(this.temp.nonempty);
-							}
+							this.temp.cleaned.push(this.temp.nonempty);
 						}.bind(this));
-						if(this.temp.cleaned.length<=1){
-							this.temp.cleaned=this.temp.cleaned[0];
-						}
 						this.set_effect(rule.selector,bolster_property,this.temp.cleaned);
 					}
 				}.bind(this));
@@ -171,27 +161,57 @@
 	};
 	// Effect configuration.
 	this.bolsterfx={
+		// An example test property.
 		'test-property':function(selector,args){
-			console.log('Selector: '+selector+';');// Declaration:"test-property:'+args+';"');
+			console.log('Selector: '+selector+';');
 			console.log(args);
 		},
 		// Vertically centre dynamic content
-		/*'vert-mount':function(selector,args){
-			;
-		},*/
-		// Natural height given in absolute pixels
-		'abs-height':function(selector,arg){
-			if(arg==='auto'){
-				$$('selector').each(function(element){
-					element.setStyle('height',element.getSize().y);
+		'vert-mount':function(selector,args){
+			function set_mount(obj){
+				$$(obj.s).each(function(element){
+					obj.current=element.getStyle('margin-top');
+					if(isNaN(obj.current)){
+						obj.current=0;
+					}
+					element.setStyles({
+						position:'absolute',
+						top:'50%'
+					});
+					if(obj.a[0].indexOf('middle')!==-1){
+						element.setStyle('margin-top',obj.current-element.getSize().y/2);
+					}
+					if(obj.a[0].indexOf('bottom')!==-1){
+						element.setStyle('margin-top',obj.current-element.getSize().y);
+					}
 				});
 			}
-			else if(arg==='auto-continuous'){
-				this.add_continuous(function(){
-					$$('selector').each(function(element){
-						element.setStyle('height',element.getSize().y);
-					});
+			set_mount({
+				s:selector,
+				a:args
+			});
+			if(args.indexOf('continuous')!==-1){
+				this.add_continuous(set_mount,{
+					s:selector,
+					a:args
 				});
+			}
+		},
+		// Natural height given in absolute pixels
+		'abs-height':function(selector,args){
+			if(args[0].indexOf('auto')!==-1){
+				$$(selector).each(function(element){
+					element.setStyle('height','auto');
+					element.setStyle('height',element.getSize().y);
+				});
+				if(args[0].indexOf('continuous')!==-1){
+					this.add_continuous(function(s){
+						$$(s).each(function(element){
+							element.setStyle('height','auto');
+							element.setStyle('height',element.getSize().y);
+						});
+					},selector);
+				}
 			}
 			else{ // If they're an idiot and decide to use this for a regular height declaration.
 				sheets_width:
@@ -200,7 +220,7 @@
 					for(this.temp.j=0,this.temp.lenB=this.temp.sheet.cssRules.length;this.temp.j<this.temp.lenB;this.temp.j++){
 						this.temp.rule=document.styleSheets[this.temp.i].cssRules[this.temp.j];
 						if(this.temp.rule.selectorText===selector){
-							this.temp.rule.style.setProperty('width',arg);
+							this.temp.rule.style.setProperty('width',args[0][0]);
 							break sheets_width;
 						}
 					}
@@ -208,18 +228,20 @@
 			}
 		},
 		// Natural width given in absolute pixels
-		'abs-width':function(selector,arg){
-			if(arg==='auto'){
-				$$('selector').each(function(element){
+		'abs-width':function(selector,args){
+			if(args[0].indexOf('auto')!==-1){
+				$$(selector).each(function(element){
+					element.setStyle('width','auto');
 					element.setStyle('width',element.getSize().x);
 				});
-			}
-			else if(arg==='auto-continuous'){
-				this.add_continuous(function(){
-					$$('selector').each(function(element){
-						element.setStyle('width',element.getSize().x);
-					});
-				});
+				if(args[0].indexOf('continuous')!==-1){
+					this.add_continuous(function(s){
+						$$(s).each(function(element){
+							element.setStyle('width','auto');
+							element.setStyle('width',element.getSize().x);
+						});
+					},selector);
+				}
 			}
 			else{
 				sheets_width:
@@ -228,7 +250,7 @@
 					for(this.temp.j=0,this.temp.lenB=this.temp.sheet.cssRules.length;this.temp.j<this.temp.lenB;this.temp.j++){
 						this.temp.rule=document.styleSheets[this.temp.i].cssRules[this.temp.j];
 						if(this.temp.rule.selectorText===selector){
-							this.temp.rule.style.setProperty('width',arg);
+							this.temp.rule.style.setProperty('width',args[0][0]);
 							break sheets_width;
 						}
 					}
@@ -243,12 +265,15 @@
 	
 	// Continuous functions.
 	this.continuous=[];
-	this.add_continuous=function(func){
-		this.continuous.push(func);
+	this.add_continuous=function(func,param){
+		this.continuous.push({
+			'function':func,
+			parameter:param
+		});
 	}.bind(this);
 	(function(){
-		this.continuous.each(function(func){
-			func();
+		this.continuous.each(function(item){
+			item['function'](item.parameter);
 		});
 	}).bind(this).periodical(1/32);
 	

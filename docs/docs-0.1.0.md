@@ -30,5 +30,4 @@ To extend Bolster with a custom function, you can call `window.Bolster.extend(pr
 * If there are both commas and whitespace delimiters, an array is passed such that:
 	* Each array element is comma delimited.
 	* Within each element is an array of whitespace delimited values.
-	* If an array ever contains only one element, that element is passed by itself.
 * Quoted strings are treated as a single value.
