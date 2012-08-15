@@ -16,9 +16,19 @@ Bolster Properties
 ==================
 Bolster comes with a number of default dynamic styles, all of which have the '-bolster-' prefix.
 
-* **-bolster-abs-height** -- behaviors like height, but will set a width in absolute pixels when set to 'auto'. Useful for dynamic content.
-* **-bolster-abs-width** -- behaviors like width, but will set a width in absolute pixels when set to 'auto'. Useful for dynamic content.
+* **-bolster-abs-height** -- behaviors like `height`, but will set a width in absolute pixels when set to `auto`. If set to `auto-continuous`, it will continuously rescan the element in case the content changes. Note that `auto-continuous` may clash with tweening functions. Useful for dynamic content.
+* **-bolster-abs-width** -- same as `-bolster-abs-height`, but for width. 
 
 Custom Properties
 =================
 Bolster comes with an extend function that allows you to define your own custom dynamic styles.
+
+To extend Bolster with a custom function, you can call `window.Bolster.extend(property_name, function)` and pass it a function of signature `function(selector, arguments)`. The `selector` argument is the CSS selector, and the `arguments` argument is the value of the CSS declaration, passed as follows:
+* If there is one value, it is passed.
+* If there are multiple comma-delimited values, an array is passed.
+* If there are multiple whitespace-delimited values, an array is passed.
+* If there are both commas and whitespace delimiters, an array is passed such that:
+	* Each array element is comma delimited.
+	* Within each element is an array of whitespace delimited values.
+	* If an array ever contains only one element, that element is passed by itself.
+* Quoted strings are treated as a single value.

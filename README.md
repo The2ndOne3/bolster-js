@@ -6,6 +6,8 @@ Usage
 =====
 Bolster scans all linked CSS files for its keywords. All you need to do is link an external CSS file and Bolster will take care of the rest.
 
+See the documentation for more details.
+
 Upcoming
 ========
 * **Reduced Dependencies** -- A leaner, compressed distribution.

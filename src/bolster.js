@@ -25,33 +25,37 @@
 	};
 	// Initialize temporary object.
 	this.temp={};
-	
-	// Initialize CSS input object.
-	this.input={
-		count:$(document.head).getChildren('link[type="text/css"]').length, // The number of files
-		loaded:0, // The counter of loaded files.
-		text:''
-	};
-	// Get inline CSS.
-	$$('style[type="text/css"]').each(function(style){
-		this.input.text+=style.get('html');
-	});
-	// Get the CSS files.
-	$(document.head).getChildren('link[type="text/css"]').each(function(link){
-		new Request({
-			url:link.get('href'),
-			onSuccess:(function(response){
-				this.input.text+=response;
-				this.input.loaded++;
-				if(this.input.loaded===this.input.count){
-					this.parse(this.input.text);
-				}
-			}).bind(this)
-		}).send();
-	},this);
+
+	// Wait until all CSS loads.
+	window.addEvent('domready',function(){
+		// Initialize CSS input object.
+		this.input={
+			count:$(document.head).getChildren('link[type="text/css"]').length, // The number of files
+			loaded:0, // The counter of loaded files.
+			text:''
+		};
+		
+		// Get inline CSS.
+		$$('style').each(function(style){
+			this.input.text+=style.get('html');
+		}.bind(this));		
+		// Get external CSS files.
+		$(document.head).getChildren('link[type="text/css"]').each(function(link){
+			new Request({
+				url:link.get('href'),
+				onSuccess:function(response){
+					this.input.text+=response;
+					this.input.loaded++;
+					if(this.input.loaded===this.input.count){
+						this.parse(this.input.text);
+					}
+				}.bind(this)
+			}).send();
+		},this);		
+	}.bind(this));
 	
 	// Parse for Bolster keywords.
-	this.parse=(function(css){
+	this.parse=function(css){
 		// Parse for CSS declarations.
 		css=css.split(/[{}]/g);
 		css.pop(); // Remove last item; will be the 'empty' text after the last '}'.
@@ -64,7 +68,7 @@
 			});
 		}
 		// Parse CSS into rules.
-		this.rules.each((function(rule){
+		this.rules.each(function(rule){
 			this.temp.declarations=rule.css.split(/;/g);
 			this.temp.declarations.pop(); // Same as above.
 			this.temp.declarations.each(function(declaration){
@@ -74,11 +78,11 @@
 					value:declaration[1].trim().replace(/[\t\n]/g,'')
 				});
 			});
-		}).bind(this));
+		}.bind(this));
 		// Parse rules for Bolster properties.
-		this.rules.each((function(rule){
-			rule.declarations.each((function(declaration){
-				this.get_effects().each((function(bolster_property){
+		this.rules.each(function(rule){
+			rule.declarations.each(function(declaration){
+				this.get_effects().each(function(bolster_property){
 					if(declaration.property==='-bolster-'+bolster_property){
 						// Format whitespace.
 						this.temp.value=declaration.value.replace(/ +(?= )/g,''); // Remove multiple spaces.
@@ -123,16 +127,16 @@
 						this.temp.args.push(this.temp.bucket);
 						// Clean arguments.
 						this.temp.cleaned=[];
-						this.temp.args.each((function(tokens){
+						this.temp.args.each(function(tokens){
 							// Remove invalid tokens.
 							tokens=tokens.clean();
 							// Remove empty tokens.
 							this.temp.nonempty=[];
-							tokens.each((function(token){
+							tokens.each(function(token){
 								if(token!==''){
 									this.temp.nonempty.push(token);
 								}
-							}).bind(this));
+							}.bind(this));
 							// If only one token, push that instead of the array.
 							if(this.temp.nonempty.length<=1){
 								this.temp.cleaned.push(this.temp.nonempty[0]);
@@ -140,16 +144,16 @@
 							else{
 								this.temp.cleaned.push(this.temp.nonempty);
 							}
-						}).bind(this));
+						}.bind(this));
 						if(this.temp.cleaned.length<=1){
 							this.temp.cleaned=this.temp.cleaned[0];
 						}
 						this.set_effect(rule.selector,bolster_property,this.temp.cleaned);
 					}
-				}).bind(this));
-			}).bind(this));
-		}).bind(this));
-	}).bind(this);
+				}.bind(this));
+			}.bind(this));
+		}.bind(this));
+	}.bind(this);
 	
 	// Get effect names.
 	this.get_effects=function(){
@@ -172,11 +176,16 @@
 		// Natural height given in absolute pixels
 		'abs-height':function(selector,arg){
 			if(arg==='auto'){
+				$$('selector').each(function(element){
+					element.setStyle('height',element.getSize().y);
+				});
+			}
+			else if(arg=='auto-continuous'){
 				this.add_continuous(function(){
 					$$('selector').each(function(element){
-						element.setStyle('width',element.getSize().x);
+						element.setStyle('height',element.getSize().y);
 					});
-				});
+				});				
 			}
 			else{ // If they're an idiot and decide to use this for a regular height declaration.
 				sheets_width:
@@ -195,11 +204,16 @@
 		// Natural width given in absolute pixels
 		'abs-width':function(selector,arg){
 			if(arg==='auto'){
+				$$('selector').each(function(element){
+					element.setStyle('width',element.getSize().x);
+				});
+			}
+			else if(arg=='auto-continuous'){
 				this.add_continuous(function(){
 					$$('selector').each(function(element){
 						element.setStyle('width',element.getSize().x);
 					});
-				});
+				});				
 			}
 			else{
 				sheets_width:
@@ -214,14 +228,18 @@
 					}
 				}
 			}
-		}
+		},
+		// Sets transition type.
+		/*'transition':function(selector,arg){
+			;
+		}*/
 	};
 	
 	// Continuous functions.
 	this.continuous=[];
 	this.add_continuous=function(func){
 		this.continuous.push(func);
-	}
+	}.bind(this);
 	(function(){
 		this.continuous.each(function(func){
 			func();
